@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QMessageBox>
+#include <QButtonGroup>
 
 namespace Ui {
 class Widget;
@@ -21,6 +22,8 @@ public:
 private:
     Ui::Widget *ui;
     QTcpSocket *client;
+    QString data; //从服务器发来的数据
+    QButtonGroup *optionGroup; //选项组
 
 private slots:
     void receiveData(); //接收数据

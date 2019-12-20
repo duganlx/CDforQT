@@ -27,8 +27,11 @@ private:
     QList<QTcpSocket*> clients;
     QList<Question*> questionList;
     Question *targetQuestion;
+    QTcpSocket *client;
 
 private slots:
+    void connectingClient();
+    void disconnectedClient();
     void receiveData();
     QList<Question*> preparedQuestion();
 

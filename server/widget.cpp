@@ -19,12 +19,15 @@ Widget::Widget(QWidget *parent) :
 
     questionList = preparedQuestion();
 
+    ui->journal->append("初始化服务器...");
     for(int i=0; i<questionList.size(); i++)
     {
         targetQuestion = questionList[i];
-        targetQuestion->show();
+        ui->journal->append("题目"+QString::number(i)+":"+targetQuestion->show());
     }
 
+    //绑定槽函数
+    connect(server, SIGNAL(newConnection()), this, SLOT(connectingClient()));
 
 }
 
@@ -50,6 +53,32 @@ QList<Question*> Widget::preparedQuestion()
     return list;
 }
 
+void Widget::connectingClient()
+{
+    client = server->nextPendingConnection(); //获取连接过来的客户端信息
+    clients.append(client); //添加入客户端列表
+    ui->journal->append("客户端("+client->peerAddress().toString().split("::ffff:")[1]+":"+QString::number(client->peerPort())+") 连接服务器");
+
+    //绑定槽函数
+    connect(client, SIGNAL(readyRead()), this, SLOT(receiveData()));
+    connect(client, SIGNAL(disconnected()), this, SLOT(disconnectedClient()));
+}
+
+void Widget::disconnectedClient()
+{
+    //由于disconnected信号并未提供SocketDescriptor，所以需要遍历寻找
+    for(int i=0; i<clients.length(); i++)
+    {
+        if(clients[i]->state() == QAbstractSocket::UnconnectedState)
+        {
+            //删除记录
+            ui->journal->append("客户端("+clients[i]->peerAddress().toString().split("::ffff:")[1]+":"+QString::number(clients[i]->peerPort())+") 断开连接");
+            clients[i]->destroyed();
+            clients.removeAt(i);
+        }
+    }
+}
+
 void Widget::receiveData()
 {
     qDebug()<<"receiveData()";
@@ -66,6 +95,7 @@ void Widget::on_run_clicked()
         if(ok)
         {
             QMessageBox::information(NULL, "提示", "已监听", QMessageBox::Ok);
+            ui->journal->append("服务器监听成功(ip:"+ipAddr+",port:"+QString::number(port)+")");
             ui->run->setText("断开");
             ui->sendData->setEnabled(true);
         }
@@ -109,6 +139,13 @@ void Widget::on_sendData_clicked()
         QMessageBox::information(NULL, "提示", "请选择题目", QMessageBox::Ok);
     }
 
+    qDebug()<<"question data: "+targetQuestion->getStr();
+
     for(int i=0; i<clients.length(); i++)
-        clients[i]->write(questionList[1]->getStr().toLatin1());
+    {
+        ui->journal->append("客户端("+clients[i]->peerAddress().toString()+":"+QString::number(clients[i]->peerPort())+")发送习题"+
+                            QString::number(questionId));
+        clients[i]->write(targetQuestion->getStr().toUtf8());
+    }
+
 }

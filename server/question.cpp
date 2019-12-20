@@ -7,14 +7,9 @@ Question::Question(QString content, QString answer, QString A, QString B, QStrin
 
 }
 
-void Question::show()
+QString Question::show()
 {
-    qDebug()<<"内容:"<<content
-           <<" ,答案:"<<answer
-           <<" ,选项A:"<<optionA
-           <<" ,选项B:"<<optionB
-           <<" ,选项C:"<<optionC
-           <<" ,选项D:"<<optionD;
+    return "内容:"+content+",答案:"+answer+",选项A:"+optionA+",选项B:"+optionB+",选项C:"+optionC+",选项D:"+optionD;
 }
 
 QString Question::getContent()

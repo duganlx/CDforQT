@@ -8,7 +8,7 @@ class Question : public QObject
     Q_OBJECT
 public:
     Question(QString content, QString answer, QString A, QString B, QString C, QString D);
-    void show();
+    QString show();
     QString getContent();
     QString getAnswer();
     QString getA();
