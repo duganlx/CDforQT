@@ -38,7 +38,6 @@ void Widget::receiveData()
     QByteArray buffer = client->readAll();
     if(!buffer.isEmpty())
     {
-        //ui->content->setText(buffer);
         data = QTextCodec::codecForName("UTF-8")->toUnicode(buffer);
         qDebug()<<data;
     }
@@ -134,5 +133,4 @@ void Widget::on_commit_clicked()
     qDebug()<<"commit data to server: "<<clientChoice.toUtf8();
 
     client->write(clientChoice.toUtf8());
-
 }
