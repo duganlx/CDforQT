@@ -101,7 +101,6 @@ void Widget::on_disconnectServer_clicked()
 
 void Widget::on_commit_clicked()
 {
-    qDebug()<<"commit data";
     //对应关系：A-0 B-1 C-2 D-3
     QString clientChoice;
 
@@ -123,10 +122,17 @@ void Widget::on_commit_clicked()
 
     if(clientChoice == data.split(",")[1])
     {
+        clientChoice.append(",答案正确");
         QMessageBox::information(NULL, "提示", "回答正确(●'◡'●)", QMessageBox::Ok);
     }
     else
     {
+        clientChoice.append(",答案错误");
         QMessageBox::information(NULL, "提示", "回答错误( ▼-▼ )", QMessageBox::Ok);
     }
+
+    qDebug()<<"commit data to server: "<<clientChoice.toUtf8();
+
+    client->write(clientChoice.toUtf8());
+
 }

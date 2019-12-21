@@ -1,5 +1,6 @@
 #include "widget.h"
 #include "ui_widget.h"
+#include <QTextCodec>
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -23,7 +24,7 @@ Widget::Widget(QWidget *parent) :
     for(int i=0; i<questionList.size(); i++)
     {
         targetQuestion = questionList[i];
-        ui->journal->append("题目"+QString::number(i)+":"+targetQuestion->show());
+        ui->journal->append("题目"+QString::number(i+1)+":"+targetQuestion->show());
     }
 
     //绑定槽函数
@@ -82,6 +83,19 @@ void Widget::disconnectedClient()
 void Widget::receiveData()
 {
     qDebug()<<"receiveData()";
+
+    for(int i=0; i<clients.length(); i++)
+    {
+        QByteArray buffer = clients[i]->readAll();
+        if(buffer.isEmpty()) continue;
+
+        QString data = QTextCodec::codecForName("UTF-8")->toUnicode(buffer);
+        QStringList datas = data.split(",");
+
+        QString message = tr("客户端(%1:%2):所选答案为：%3,%4").arg(clients[i]->peerAddress().toString().split("::ffff:")[1])
+                                             .arg(clients[i]->peerPort()).arg(datas.at(0)).arg(datas.at(1));
+        ui->journal->append(message);
+    }
 }
 
 void Widget::on_run_clicked()
